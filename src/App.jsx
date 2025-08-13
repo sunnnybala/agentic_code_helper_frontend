@@ -64,11 +64,18 @@ function App() {
     setResult(null);
 
     try {
-      const response = await axios.post('/api/upload', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        } // 5 minutes timeout
-      });
+      // Use the environment variable for the API URL
+      const apiUrl = import.meta.env.VITE_API_URL || '';
+      const response = await axios.post(
+        `${apiUrl}/api/upload`, 
+        formData, 
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+          withCredentials: true
+        }
+      );
       
       if (!response.data.success) {
         throw new Error(response.data.error || 'Unknown error occurred');
@@ -76,16 +83,14 @@ function App() {
       
       setResult(response.data);
     } catch (err) {
+      console.error('Full error:', err);
+      console.error('Error response:', err.response);
+      
       const errorMessage = err.response?.data?.error || 
                          err.response?.data?.details || 
                          err.message || 
                          'An error occurred while processing the images';
-      setError(errorMessage);
-      console.error('API Error:', {
-        message: err.message,
-        response: err.response?.data,
-        stack: err.stack
-      });
+      setError(`Error: ${errorMessage}`);
     } finally {
       setIsLoading(false);
     }

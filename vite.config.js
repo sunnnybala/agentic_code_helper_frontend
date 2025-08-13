@@ -7,6 +7,7 @@ export default defineConfig(({ mode }) => {
   
   return {
     plugins: [react()],
+    // For development server proxy
     server: {
       proxy: {
         '/api': {
@@ -16,9 +17,15 @@ export default defineConfig(({ mode }) => {
         },
       },
     },
-    // This makes the env variables available in the client-side code
+    // For production build
+    base: '/', // Set your base URL if needed
     define: {
       'process.env': {}
+    },
+    build: {
+      outDir: 'dist',
+      assetsDir: 'assets',
+      sourcemap: true, // Enable source maps for debugging
     }
   }
 })
