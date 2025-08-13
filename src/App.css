@@ -51,10 +51,75 @@ header h1 {
 header p {
   color: #6b7280;
   font-size: 1.1rem;
+  margin-bottom: 2rem;
 }
 
 main {
   flex: 1;
+}
+
+/* Configuration Card */
+.configuration-card {
+  background: var(--card-bg);
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  box-shadow: var(--shadow);
+  margin-bottom: 2rem;
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+  width: 100%;
+}
+
+.configuration-card h3 {
+  color: var(--primary-color);
+  margin-bottom: 1.25rem;
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.config-fields {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.form-group {
+  margin-bottom: 0;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: var(--text-color);
+}
+
+.form-control {
+  width: 100%;
+  padding: 0.625rem 0.875rem;
+  border: 1px solid var(--border-color);
+  border-radius: 0.5rem;
+  font-size: 0.9375rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  background-color: #fff;
+}
+
+.form-control:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+textarea.form-control {
+  min-height: 80px;
+  resize: vertical;
+}
+
+.hint {
+  font-size: 0.8125rem;
+  color: #6b7280;
+  margin-top: 0.35rem;
+  line-height: 1.4;
 }
 
 /* Form styles */

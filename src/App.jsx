@@ -8,6 +8,8 @@ function App() {
   const [result, setResult] = useState(null);
   const [error, setError] = useState('');
   const [previews, setPreviews] = useState([]);
+  const [model, setModel] = useState('gpt-4');
+  const [additionalInstructions, setAdditionalInstructions] = useState('');
 
   const handleFileChange = (e) => {
     const newFiles = Array.from(e.target.files).slice(0, 3); // Limit to 3 files
@@ -54,10 +56,19 @@ function App() {
       return;
     }
 
+    if (!model.trim()) {
+      setError('Please specify a model to use');
+      return;
+    }
+
     const formData = new FormData();
     files.forEach((file) => {
       formData.append('images', file);
     });
+    formData.append('model', model);
+    if (additionalInstructions.trim()) {
+      formData.append('additionalInstructions', additionalInstructions);
+    }
 
     setIsLoading(true);
     setError('');
@@ -102,6 +113,37 @@ function App() {
         <h1>AI Code Solver</h1>
         <p>Upload an image of a coding problem and get the solution</p>
       </header>
+      
+      <div className="configuration-card">
+        <h3>Configuration</h3>
+        <div className="config-fields">
+          <div className="form-group">
+            <label htmlFor="model">AI Model</label>
+            <input
+              type="text"
+              id="model"
+              value={model}
+              onChange={(e) => setModel(e.target.value)}
+              placeholder="e.g., gpt-4, gpt-3.5-turbo"
+              className="form-control"
+            />
+            <div className="hint">Specify the AI model to use for code generation</div>
+          </div>
+          
+          <div className="form-group">
+            <label htmlFor="instructions">Additional Instructions</label>
+            <textarea
+              id="instructions"
+              value={additionalInstructions}
+              onChange={(e) => setAdditionalInstructions(e.target.value)}
+              placeholder="Any specific instructions or requirements for the solution..."
+              className="form-control"
+              rows="2"
+            />
+            <div className="hint">Optional: Add any specific requirements or constraints</div>
+          </div>
+        </div>
+      </div>
 
       <main>
         <form onSubmit={handleSubmit} className="upload-form">
