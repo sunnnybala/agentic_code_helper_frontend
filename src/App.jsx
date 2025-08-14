@@ -1,5 +1,8 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useMemo } from 'react';
 import axios from 'axios';
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { oneDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import detectLang from 'lang-detector';
 import './App.css';
 
 function App() {
@@ -8,7 +11,7 @@ function App() {
   const [result, setResult] = useState(null);
   const [error, setError] = useState('');
   const [previews, setPreviews] = useState([]);
-  const [model, setModel] = useState('gpt-4');
+  const [model, setModel] = useState('gpt-5-nano');
   const [additionalInstructions, setAdditionalInstructions] = useState('');
 
   const handleFileChange = (e) => {
@@ -124,7 +127,7 @@ function App() {
               id="model"
               value={model}
               onChange={(e) => setModel(e.target.value)}
-              placeholder="e.g., gpt-4, gpt-3.5-turbo"
+              placeholder="e.g., gpt-5, gpt-5-mini"
               className="form-control"
             />
             <div className="hint">Specify the AI model to use for code generation</div>
@@ -220,7 +223,10 @@ function App() {
             <div className="solution-section">
               <h2>Solution</h2>
               <div className="code-block">
-                <pre>{result.solution.bestSolution}</pre>
+                <CodeBlock 
+                  code={result.solution.bestSolution} 
+                  language={result.language || 'javascript'} 
+                />
               </div>
             </div>
             
@@ -247,6 +253,78 @@ function App() {
         <p>AI Code Solver - Upload an image of a coding problem to get started</p>
       </footer>
     </div>
+  );
+}
+
+// Component to handle syntax highlighting with language detection
+function CodeBlock({ code, language: defaultLanguage = 'python' }) {
+  // Try to detect the language if not provided
+  const detectedLanguage = useMemo(() => {
+    if (!code) return defaultLanguage;
+    try {
+      const detected = detectLang(code);
+      // Map some common language names to Prism.js supported ones
+      const langMap = {
+        'javascript': 'javascript',
+        'js': 'javascript',
+        'python': 'python',
+        'py': 'python',
+        'java': 'java',
+        'c++': 'cpp',
+        'cpp': 'cpp',
+        'c': 'c',
+        'c#': 'csharp',
+        'csharp': 'csharp',
+        'go': 'go',
+        'ruby': 'ruby',
+        'rust': 'rust',
+        'php': 'php',
+        'typescript': 'typescript',
+        'ts': 'typescript',
+        'swift': 'swift',
+        'kotlin': 'kotlin',
+        'scala': 'scala',
+        'r': 'r',
+        'objective-c': 'objectivec',
+        'objectivec': 'objectivec',
+        'bash': 'bash',
+        'shell': 'bash',
+        'sql': 'sql',
+        'html': 'html',
+        'css': 'css',
+        'json': 'json',
+        'yaml': 'yaml',
+        'markdown': 'markdown',
+        'md': 'markdown',
+      };
+      
+      return langMap[detected.toLowerCase()] || defaultLanguage;
+    } catch (e) {
+      console.error('Error detecting language:', e);
+      return defaultLanguage;
+    }
+  }, [code, defaultLanguage]);
+
+  return (
+    <SyntaxHighlighter 
+      language={detectedLanguage}
+      style={oneDark}
+      showLineNumbers={true}
+      wrapLines={true}
+      customStyle={{
+        margin: 0,
+        borderRadius: '6px',
+        fontSize: '0.9em',
+        lineHeight: '1.5',
+      }}
+      codeTagProps={{
+        style: {
+          fontFamily: 'Fira Code, monospace',
+        },
+      }}
+    >
+      {code}
+    </SyntaxHighlighter>
   );
 }
 
