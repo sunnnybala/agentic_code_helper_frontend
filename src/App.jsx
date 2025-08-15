@@ -133,10 +133,14 @@ function App() {
               <option value="gpt-5">gpt-5 (50 rupees per question)</option>
               <option value="gpt-5-mini">gpt-5-mini (15 rupees per question)</option>
               <option value="gpt-5-nano">gpt-5-nano (5 rupees per question)</option>
+              <option value="gpt-5-nano">gemini-2.0-flash (5 rupees per question)</option>
+              <option value="gpt-5-mini">gemini-2.5-pro (25 rupees per question)</option>
+              <option value="gpt-5-mini">claude-3.5-sonnet (20 rupees per question)</option>
+              <option value="gpt-5-mini">claude-3.5-haiku (15 rupees per question)</option>
             </select>
             <div className="hint">Specify the AI model to use for code generation</div>
           </div>
-          
+           
           <div className="form-group">
             <label htmlFor="instructions">Additional Instructions</label>
             <textarea
