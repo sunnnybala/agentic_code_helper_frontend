@@ -113,7 +113,8 @@ function App() {
   return (
     <div className="app">
       <header>
-        <h1>AI Code Solver</h1>
+        <h1>Code Turtle</h1>
+        <p>slow and steady wins the race</p>
         <p>Upload an image of a coding problem and get the solution</p>
       </header>
       
@@ -122,14 +123,17 @@ function App() {
         <div className="config-fields">
           <div className="form-group">
             <label htmlFor="model">AI Model</label>
-            <input
-              type="text"
+            <select
               id="model"
               value={model}
               onChange={(e) => setModel(e.target.value)}
               placeholder="e.g., gpt-5, gpt-5-mini"
               className="form-control"
-            />
+            >
+              <option value="gpt-5">gpt-5 (50 rupees per question)</option>
+              <option value="gpt-5-mini">gpt-5-mini (15 rupees per question)</option>
+              <option value="gpt-5-nano">gpt-5-nano (5 rupees per question)</option>
+            </select>
             <div className="hint">Specify the AI model to use for code generation</div>
           </div>
           
