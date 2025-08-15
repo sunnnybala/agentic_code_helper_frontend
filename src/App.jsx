@@ -115,7 +115,7 @@ function App() {
       <header>
         <h1>Code Turtle</h1>
         <p>slow and steady wins the race</p>
-        <p>Upload an image of a coding problem and get the solution</p>
+        <p>Upload an image of a coding problem and get it solved by a team of AI agents </p>
       </header>
       
       <div className="configuration-card">
