@@ -1,10 +1,10 @@
-import { useState, useCallback, useEffect, useMemo } from 'react';
+import { useState, useCallback, useEffect, useMemo, useRef } from 'react';
 import axios from 'axios';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { oneDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import detectLang from 'lang-detector';
 import './App.css';
-
+console.log("hello");
 function App() {
   const [files, setFiles] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -13,6 +13,13 @@ function App() {
   const [previews, setPreviews] = useState([]);
   const [model, setModel] = useState('gpt-5-nano');
   const [additionalInstructions, setAdditionalInstructions] = useState('');
+  const [progress, setProgress] = useState({
+    imageProcessed: false,
+    codeGenerated: false,
+    testCasesGenerated: false,
+    solutionSelected: false
+  });
+  const solutionRef = useRef(null);
 
   const handleFileChange = (e) => {
     const newFiles = Array.from(e.target.files).slice(0, 3); // Limit to 3 files
@@ -36,6 +43,11 @@ function App() {
       });
     };
   }, [previews]);
+  useEffect(() => {
+    if (result && solutionRef.current) {
+      solutionRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [result]);
 
   const removeFile = (index) => {
     const newFiles = [...files];
@@ -76,10 +88,33 @@ function App() {
     setIsLoading(true);
     setError('');
     setResult(null);
+    setProgress({
+      imageProcessed: false,
+      codeGenerated: false,
+      testCasesGenerated: false,
+      solutionSelected: false
+    });
 
     try {
       // Use the environment variable for the API URL
       const apiUrl = import.meta.env.VITE_API_URL || '';
+      
+      // Setup EventSource for progress updates
+      const eventSource = new EventSource(`${apiUrl}/api/progress`);
+      
+      eventSource.onmessage = (event) => {
+        const update = JSON.parse(event.data);
+        setProgress(prev => ({
+          ...prev,
+          ...update
+        }));
+      };
+      
+      eventSource.onerror = (error) => {
+        console.error('EventSource failed:', error);
+        eventSource.close();
+      };
+      
       const response = await axios.post(
         `${apiUrl}/api/upload`, 
         formData, 
@@ -91,11 +126,17 @@ function App() {
         }
       );
       
+      // Close the event source when done
+      eventSource.close();
+      
       if (!response.data.success) {
         throw new Error(response.data.error || 'Unknown error occurred');
       }
       
       setResult(response.data);
+      
+      // Scroll to solution when complete
+      
     } catch (err) {
       console.error('Full error:', err);
       console.error('Error response:', err.response);
@@ -214,11 +255,29 @@ function App() {
           <div className="loading">
             <div className="spinner"></div>
             <p>Analyzing your problem with AI agents...</p>
+            <div className="progress-steps">
+              <div className={`progress-step ${progress.imageProcessed ? 'completed' : ''}`}>
+                <span className="step-number">1</span>
+                <span className="step-text">Image Processed</span>
+              </div>
+              <div className={`progress-step ${progress.codeGenerated ? 'completed' : ''}`}>
+                <span className="step-number">2</span>
+                <span className="step-text">Code Generated</span>
+              </div>
+              <div className={`progress-step ${progress.testCasesGenerated ? 'completed' : ''}`}>
+                <span className="step-number">3</span>
+                <span className="step-text">Test Cases Generated</span>
+              </div>
+              <div className={`progress-step ${progress.solutionSelected ? 'completed' : ''}`}>
+                <span className="step-number">4</span>
+                <span className="step-text">Best Solution Selected</span>
+              </div>
+            </div>
           </div>
         )}
 
         {result && (
-          <div className="result">
+          <div className="result" >
             {result.problemStatement && (
               <div className="problem-statement">
                 <h2>Problem Statement</h2>
@@ -228,7 +287,7 @@ function App() {
               </div>
             )}
             
-            <div className="solution-section">
+            <div className="solution-section" ref={solutionRef}>
               <h2>Solution</h2>
               <div className="code-block">
                 <CodeBlock 
