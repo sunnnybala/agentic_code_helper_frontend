@@ -108,8 +108,119 @@ function App() {
       // client-side and send it with the upload; the server will use it if provided.
       const provisionalRequestId = `c${Date.now().toString(36)}${Math.random().toString(36).slice(2)}`;
 
-      // Setup EventSource for progress updates and subscribe to this requestId
-      const eventSource = new EventSource(`${apiUrl}/api/progress?requestId=${provisionalRequestId}`);
+      // SSE connection with token refresh and reconnect logic.
+      // The token endpoint returns a short-lived JWT (default 300s). We refresh
+      // it shortly before expiry and reconnect the EventSource. Exponential
+      // backoff is used for reconnect attempts.
+      let eventSource = null;
+      let retryCount = 0;
+      const maxRetries = 6; // stops after ~1min of attempts (1s->64s)
+      const baseDelay = 1000; // ms
+      const SSE_TOKEN_TTL = 300; // seconds (should match server)
+      const SSE_REFRESH_MARGIN = 30; // seconds before expiry to refresh
+      let refreshTimer = null;
+      let stopped = false; // set true when we intentionally close the connection
+
+      const closeSSE = () => {
+        stopped = true;
+        if (eventSource) try { eventSource.close(); } catch (_) {}
+        eventSource = null;
+        if (refreshTimer) { clearTimeout(refreshTimer); refreshTimer = null; }
+      };
+
+      const scheduleTokenRefresh = (onRefresh) => {
+        if (refreshTimer) clearTimeout(refreshTimer);
+        const ms = Math.max(1000, (SSE_TOKEN_TTL - SSE_REFRESH_MARGIN) * 1000);
+        refreshTimer = setTimeout(() => {
+          onRefresh().catch((e) => {
+            console.error('SSE token refresh failed', e);
+          });
+        }, ms);
+      };
+
+      const openSSEWithToken = async () => {
+        if (stopped) return;
+        try {
+          const tokenResp = await axios.get(`${apiUrl}/auth/stream-token`, { withCredentials: true });
+          const token = tokenResp?.data?.token;
+          const url = token
+            ? `${apiUrl}/api/progress?requestId=${provisionalRequestId}&token=${encodeURIComponent(token)}`
+            : `${apiUrl}/api/progress?requestId=${provisionalRequestId}`;
+
+          // Close any existing connection before opening a new one
+          if (eventSource) try { eventSource.close(); } catch (_) {}
+
+          eventSource = new EventSource(url);
+
+          // Reset retry counter on successful open
+          retryCount = 0;
+
+          // Schedule a token refresh shortly before expiry
+          if (token) scheduleTokenRefresh(async () => {
+            if (stopped) return;
+            try {
+              // fetch new token and re-open connection
+              const refreshed = await axios.get(`${apiUrl}/auth/stream-token`, { withCredentials: true });
+              const newToken = refreshed?.data?.token;
+              if (!newToken) throw new Error('no token');
+              // open new connection using the new token
+              await openSSEWithToken();
+            } catch (e) {
+              console.error('Failed to refresh SSE token', e);
+            }
+          });
+
+          // Attach handlers (they will be replaced if we re-open connection)
+          eventSource.onmessage = (event) => {
+            try {
+              const update = JSON.parse(event.data);
+              const { event: evt, requestId: sid, ...rest } = update;
+              if (evt === 'completed') {
+                setProgress(prev => ({
+                  ...prev,
+                  imageProcessed: true,
+                  codeGenerated: true,
+                  testCasesGenerated: true,
+                  solutionSelected: true
+                }));
+                return;
+              }
+              setProgress(prev => ({ ...prev, ...rest }));
+            } catch (e) {
+              console.error('Failed to parse SSE message', e);
+            }
+          };
+
+          eventSource.onerror = () => {
+            try { eventSource.close(); } catch (_) {}
+            eventSource = null;
+            if (stopped) return;
+            // schedule reconnect with exponential backoff
+            if (retryCount <= maxRetries) {
+              const delay = Math.min(60000, baseDelay * Math.pow(2, retryCount));
+              retryCount += 1;
+              setTimeout(() => { openSSEWithToken().catch(() => {}); }, delay);
+            } else {
+              console.error('SSE reconnect attempts exhausted');
+            }
+          };
+
+        } catch (err) {
+          console.error('Failed to open SSE connection with token:', err);
+          // fallback to direct SSE without token in non-prod environments
+          if (process.env.NODE_ENV !== 'production') {
+            try {
+              if (eventSource) try { eventSource.close(); } catch (_) {}
+              eventSource = new EventSource(`${apiUrl}/api/progress?requestId=${provisionalRequestId}`);
+            } catch (e) {
+              console.error('Fallback direct SSE open failed', e);
+            }
+          }
+        }
+      };
+
+      // Start the connection
+      await openSSEWithToken();
       
       eventSource.onmessage = (event) => {
         try {
