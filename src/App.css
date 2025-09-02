@@ -48,6 +48,53 @@ header h1 {
   color: var(--primary-color);
 }
 
+/* Header navigation */
+.site-header .nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.site-header h1 {
+  font-size: 1.5rem;
+  color: var(--primary-color);
+  margin: 0;
+}
+
+.auth-links {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.btn-link {
+  background: transparent;
+  color: var(--primary-color);
+  border: 1px solid transparent;
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+  text-decoration: none;
+}
+
+.btn-secondary {
+  background: var(--primary-color);
+  color: white;
+}
+
+.btn-ghost {
+  background: transparent;
+  border: 1px solid var(--border-color);
+  padding: 0.4rem 0.6rem;
+  margin-left: 0.5rem;
+}
+
+.user-greeting {
+  margin-right: 0.5rem;
+  color: #374151;
+  font-weight: 600;
+}
+
 header p {
   color: #6b7280;
   font-size: 1.1rem;
@@ -133,6 +180,158 @@ textarea.form-control {
   max-width: 600px;
   margin-left: auto;
   margin-right: auto;
+}
+
+/* Auth form shared styles */
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  max-width: 420px;
+  margin: 0.5rem 0;
+}
+
+.auth-form input {
+  padding: 0.6rem 0.85rem;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+}
+
+.auth-form button {
+  padding: 0.6rem 0.85rem;
+}
+
+.page {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+/* Page card wrapper for main pages */
+.card {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  padding: 1.5rem;
+}
+
+/* Centered hero / landing area */
+.hero {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.hero .lead {
+  max-width: 60%;
+}
+
+.hero h2 {
+  color: var(--primary-color);
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.hero p {
+  color: #4b5563;
+}
+
+/* Upload card tweaks */
+.upload-card {
+  display: flex;
+  gap: 1.5rem;
+  align-items: flex-start;
+}
+
+.upload-card .left {
+  flex: 1 1 360px;
+}
+
+.upload-card .right {
+  flex: 1 1 320px;
+}
+
+/* Buy credits */
+.buy-credits {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.buy-credits input[type="number"] {
+  width: 80px;
+  padding: 0.5rem;
+  border-radius: 6px;
+  border: 1px solid var(--border-color);
+}
+
+.buy-credits button {
+  padding: 0.5rem 0.9rem;
+  font-size: 0.9rem;
+}
+
+/* Inline buy & logout under form */
+.form-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.post-actions {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+.buy-and-logout {
+  display: flex;
+  flex-direction: column; /* stack buy row and logout row vertically */
+  gap: 0.5rem;
+  align-items: center; /* center horizontally */
+}
+
+.buy-row { display: flex; gap: 0.5rem; align-items: center; justify-content: center; }
+.buy-input, .buy-credits-inline input[type="number"], .buy-credits input[type="number"] { width: 80px; padding: 0.4rem; border-radius: 6px; border: 1px solid var(--border-color); }
+.buy-btn { padding: 0.5rem 0.8rem; }
+.logout-row { margin-top: 0.75rem; }
+.logout-cta { background: #ef4444; color: white; border: none; padding: 0.5rem 0.8rem; border-radius: 6px; }
+.logout-cta:hover { background: #dc2626; }
+
+/* Improve footer spacing */
+footer {
+  text-align: center;
+  margin-top: 4rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--border-color);
+}
+
+/* Navigation in AppShell */
+.app nav {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.app nav a {
+  color: var(--primary-color);
+  text-decoration: none;
+  padding: 0.4rem 0.6rem;
+  border-radius: 6px;
+}
+
+.app nav button {
+  padding: 0.4rem 0.6rem;
+}
+
+/* Responsive adjustments for hero/upload */
+@media (max-width: 880px) {
+  .hero { flex-direction: column; }
+  .hero .lead { max-width: 100%; }
+  .upload-card { flex-direction: column; }
 }
 
 .file-input {

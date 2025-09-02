@@ -14,6 +14,7 @@
     "lang-detector": "^1.0.6",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-router-dom": "^6.30.1",
     "react-syntax-highlighter": "^15.6.1"
   },
   "devDependencies": {
