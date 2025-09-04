@@ -1,6 +1,7 @@
 import { useAuth } from '../context/AuthContext';
 import GoogleSignInButton from './Auth/GoogleSignInButton';
 import { Link, useLocation } from 'react-router-dom';
+import PolicyMenu from './PolicyMenu';
 
 export default function Header() {
   const { user, logout } = useAuth();
@@ -28,6 +29,7 @@ export default function Header() {
               <GoogleSignInButton />
             </div>
           )}
+          <PolicyMenu />
         </div>
       </div>
     </header>

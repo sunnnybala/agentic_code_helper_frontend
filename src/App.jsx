@@ -6,6 +6,7 @@ import detectLang from 'lang-detector';
 import './App.css';
 import Header from './components/Header';
 import BuyCredits from './components/Billing/BuyCredits';
+import PolicyMenu from './components/PolicyMenu';
 import { useAuth } from './context/AuthContext';
 console.log('App initialized');
 function App() {
@@ -296,13 +297,16 @@ function App() {
   return (
     <div className="app">
       <Header />
-      <header>
-        <h1>Code Turtle</h1>
-        <p className="motto">slow and steady wins the race</p>
-        {user && (
-          <p className="user-info">Hi, {user.username} • Credits: {user.credits}</p>
-        )}
-        <p>Upload an image of a coding problem and get it solved by a team of AI agents</p>
+      <header style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div>
+          <h1>Code Turtle</h1>
+          <p className="motto">slow and steady wins the race</p>
+          {user && (
+            <p className="user-info">Hi, {user.username} • Credits: {user.credits}</p>
+          )}
+          <p>Upload an image of a coding problem and get it solved by a team of AI agents</p>
+        </div>
+        <PolicyMenu />
       </header>
       
       <div className="configuration-card">
